@@ -2,7 +2,7 @@
 
 ## Creating Connected Data Validation Lists Without VBA Macros
 
-![Preview](/DependentDropdown.gif)
+![Preview](/img/DependentDropdown.gif)
 
 This guide will walk you through creating a two-level dependent dropdown system in Excel where:
 
@@ -50,7 +50,7 @@ This template is perfect for creating order forms, data entry sheets, or any sit
    - Refers to: "=BackEnd!$D$1#"
    - Click OK
 
-![Filtered Products Named Range](/FilteredProducts.png)
+![Filtered Products Named Range](/img/FilteredProducts.png)
 
 ### Step 3: Create a Helper Function for Error Checking
 
@@ -69,7 +69,7 @@ This template is perfect for creating order forms, data entry sheets, or any sit
    - Refers to: "=BackEnd!$F$3"
    - Click OK
 
-![Error Handler Named Range](/ErrorHandler.png)
+![Error Handler Named Range](/img/ErrorHandler.png)
 
 >[!TIP]
 >The # at the end of BackEnd!$F$1# denotes that the cell contains a dynamic array and will link all of the data instead of only what is in cell F1
@@ -109,7 +109,7 @@ This template is perfect for creating order forms, data entry sheets, or any sit
 5. Click "Format" and set:
    - Fill tab: Choose a red background color
 
-<img src="ConditionalFormatting.png" width="700">
+<img src="img/ConditionalFormatting.png" width="700">
 
 ## How to Use the Template
 
