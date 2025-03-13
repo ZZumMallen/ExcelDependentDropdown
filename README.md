@@ -2,6 +2,8 @@
 
 ## Creating Connected Data Validation Lists Without VBA Macros
 
+![Preview](/DependentDropdown.gif)
+
 This guide will walk you through creating a two-level dependent dropdown system in Excel where:
 
 1. The first dropdown lets users select a company
