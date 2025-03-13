@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body style="margin-left: 30px; font-family: Verdana, sans-serif">
+    <h1 id="excel-dependent-dropdown-guide">Excel Dependent Dropdown Guide</h1>
+    <h2 id="creating-connected-data-validation-lists-without-vba-macros">
+      Creating Connected Data Validation Lists Without VBA Macros
+    </h2>
+    <p>
+      This guide will walk you through creating a two-level dependent dropdown
+      system in Excel where:
+    </p>
+    <ol>
+      <li>The first dropdown lets users select a company</li>
+      <li>
+        The second dropdown automatically filters to show only products from
+        that company
+      </li>
+      <li>Visual warnings appear if an incompatible product is selected</li>
+    </ol>
+    <p>
+      This template is perfect for creating order forms, data entry sheets, or
+      any situation where you need to ensure users select valid combinations of
+      related items.
+    </p>
+    <h2 id="step-by-step-instructions">Step-by-Step Instructions</h2>
+    <p>
+    &#128161 <strong>Tip:</strong> Using table names and Named Ranges will avoid
+      a lot of issues that can come up when adding, editing, or referencing this
+      data in other places.
+    </p>
+
+    <h3 id="step-1-set-up-your-data-table">Step 1: Set Up Your Data Table</h3>
+
+    <ol>
+      <li>Create a new Excel workbook</li>
+      <li>
+        Rename the first sheet to &quot;ClientSide&quot; (this will be your user
+        interface)
+      </li>
+      <li>
+        Create a second sheet named &quot;BackEnd&quot; (this will store your
+        data and helper functions)
+      </li>
+      <li>
+        <p>On the BackEnd sheet, create a simple two-column table:</p>
+        <ul>
+          <li>Column A: &quot;Company&quot; (header in cell A2)</li>
+          <li>Column B: &quot;Product&quot; (header in cell B2)</li>
+          <li>Enter your company-product combinations below these headers</li>
+        </ul>
+      </li>
+      <li>
+        <p>Format this as a proper Excel Table:</p>
+        <ul>
+          <li>Select your data including headers</li>
+          <li>Press Ctrl+T or go to Insert → Table</li>
+          <li>Ensure &quot;My table has headers&quot; is checked</li>
+          <li>
+            Name your table &quot;myData&quot; (click on the &quot;Table
+            Design&quot; tab, then enter &quot;myData&quot; in the Table Name
+            field)
+          </li>
+        </ul>
+      </li>
+    </ol>
+    <h3 id="step-2-create-the-filter-function">Step 2: Create the Filter Function</h3>
+    <ol>
+      <li>
+        <p>
+          On the BackEnd sheet, enter a descriptive header in cell D1 (e.g.,
+          &quot;Dynamic Range based on filter function&quot;)
+        </p>
+      </li>
+      <li>
+        <p>In cell D1, enter this formula:</p>
+        <pre><code class="lang-cs">=FILTER(myData[<span class="hljs-built_in">Product</span>],myData[Company]=ClientSide!<span class="hljs-symbol">D3</span>,<span class="hljs-string">""</span>)
+</code></pre>
+        <p>This formula:</p>
+        <ul>
+          <li>Looks at the Product column in your table</li>
+          <li>
+            Shows only products from the company selected on the ClientSide
+            sheet
+          </li>
+          <li>Returns blank (&quot;&quot;) if no matches are found</li>
+        </ul>
+      </li>
+      <li>
+        <p>Create a Named Range for this filtered result:</p>
+        <ul>
+          <li>Go to Formulas → Name Manager → New</li>
+          <li>Name: FilteredProducts</li>
+          <li>Refers to: &quot;=BackEnd!$D$1#&quot;</li>
+          <li>Click OK</li>
+        </ul>
+      </li>
+    </ol>
+    <p>
+      <img src="/FilteredProducts.png" alt="Filtered Products Named Range" />
+    </p>
+    <h3 id="step-3-create-a-helper-function-for-error-checking">
+      Step 3: Create a Helper Function for Error Checking
+    </h3>
+    <ol>
+      <li>
+        On the BackEnd sheet, enter a descriptive header in cell F1 (e.g.,
+        &quot;Helper Function&quot;)
+      </li>
+      <li>
+        <p>In cell F3, enter this formula:</p>
+        <pre><code class="lang-cs">=<span class="hljs-built_in">COUNTIFS</span>(myData[Company],ClientSide!<span class="hljs-symbol">D3</span>,myData[<span class="hljs-built_in">Product</span>],ClientSide!<span class="hljs-symbol">D5</span>)&gt;<span class="hljs-number">0</span>
+</code></pre>
+        <p>This formula:</p>
+        <ul>
+          <li>
+            Counts how many times the selected company-product combination
+            appears in your data
+          </li>
+          <li>Returns TRUE if it&#39;s a valid combination, FALSE if not</li>
+        </ul>
+      </li>
+      <li>
+        <p>Create a Named Range for this helper function:</p>
+        <ul>
+          <li>Go to Formulas → Name Manager → New</li>
+          <li>Name: ErrorHandler</li>
+          <li>Refers to: &quot;=BackEnd!$F$3&quot;</li>
+          <li>Click OK</li>
+        </ul>
+      </li>
+    </ol>
+    <p><img src="/ErrorHandler.png" alt="Error Handler Named Range" /></p>
+    
+    
+    &#128161 <strong>Tip:</strong> The # at the end of BackEnd!$F$1# denotes that the cell contains
+    a dynamic array and will link all of the data instead of only what is in
+    cell F1
+    
+    <h3 id="step-4-set-up-the-user-interface">
+    Step 4: Set Up the User Interface
+    </h3>
+    
+    <ol>
+      <li>Go to the ClientSide sheet</li>
+      <li>In cell A2, enter &quot;Select Company&quot;</li>
+      <li>In cell A4, enter &quot;Select Product&quot;</li>
+      <li>Format these cells as desired to make them stand out as labels</li>
+    </ol>
+    <h3 id="step-5-create-the-first-data-validation-company-dropdown-">
+    Step 5: Create the First Data Validation (Company Dropdown)
+    </h3>
+    <ol>
+      <li>
+        On the ClientSide sheet, select cell D3 (where users will select a
+        company)
+      </li>
+      <li>Go to Data → Data Validation</li>
+      <li>
+        Under Settings:
+        <ul>
+          <li>Allow: List</li>
+          <li>Source: &quot;=myData[Company]&quot;</li>
+        </ul>
+      </li>
+      <li>
+        Under Input Message:
+        <ul>
+          <li>Show input message when cell is selected: Checked</li>
+          <li>Title: Warning</li>
+          <li>
+            Input message: Changing company will require selecting a new product
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p>Click OK</p>
+      </li>
+    </ol>
+    <h3 id="step-6-create-the-second-data-validation-product-dropdown-">
+        Step 6: Create the Second Data Validation (Product Dropdown)
+    </h3>
+    <ol>
+      <li>
+        <p>
+          On the ClientSide sheet, select cell D5 (where users will select a
+          product)
+        </p>
+      </li>
+      <li>Go to Data → Data Validation</li>
+      <li>
+        Under Settings:
+        <ul>
+          <li>Allow: List</li>
+          <li>Source: <code>=FilteredProducts</code></li>
+        </ul>
+      </li>
+      <li>
+        <p>Click OK</p>
+
+      </li>
+    </ol>
+    <h3 id="step-7-add-conditional-formatting-for-error-highlighting">
+        Step 7: Add Conditional Formatting for Error Highlighting
+    </h3>
+    <ol>
+      <li>
+        <p>
+          On the ClientSide sheet, select cell D5 (the product selection cell)
+        </p>
+      </li>
+      <li>Go to Home → Conditional Formatting → New Rule</li>
+      <li>
+        Select &quot;Use a formula to determine which cells to format&quot;
+      </li>
+      <li>Enter the formula: <code>=ErrorHandler=FALSE</code></li>
+      <li>
+        Click &quot;Format&quot; and set:
+        <ul>
+          <li>Fill tab: Choose a red background color</li>
+        </ul>
+      </li>
+    </ol>
+    <p><img src="ConditionalFormatting.png" width="700" /></p>
+    <h2 id="how-to-use-the-template">How to Use the Template</h2>
+    <ol>
+      <li>
+        On the ClientSide sheet, click the dropdown arrow in cell D3 to select a
+        company
+      </li>
+      <li>Notice the warning message about changing the company</li>
+      <li>
+        Click the dropdown arrow in cell D5 to select a product
+        <ul>
+          <li>Only products for the selected company will appear</li>
+        </ul>
+      </li>
+      <li>
+        Try this test:
+        <ul>
+          <li>Select a company and valid product</li>
+          <li>Change the company without changing the product</li>
+          <li>
+            The product cell should turn red, indicating an invalid combination
+          </li>
+        </ul>
+      </li>
+    </ol>
+    <h2 id="how-it-works">How It Works</h2>
+    <p>This template uses three key Excel features that work together:</p>
+    <ol>
+      <li>
+        <strong>FILTER Function</strong>: Creates a dynamic list of products
+        based on the selected company
+      </li>
+      <li>
+        <strong>Named Ranges</strong>: Allow us to reference the filtered
+        products and error checking formula easily
+      </li>
+      <li>
+        <strong>Conditional Formatting</strong>: Provides visual feedback when
+        invalid combinations are selected
+      </li>
+    </ol>
+    <p>
+      The beauty of this approach is that it requires no VBA macros, making it
+      compatible with environments where macros are prohibited for security
+      reasons.
+    </p>
+    <h2 id="troubleshooting">Troubleshooting</h2>
+    <ul>
+      <li>
+        <strong>The product dropdown doesn&#39;t update</strong>: Make sure your
+        FILTER formula references the correct cells and that your named range is
+        set up correctly
+      </li>
+      <li>
+        <strong>Error highlighting doesn&#39;t work</strong>: Check that your
+        conditional formatting formula references the correct named range
+      </li>
+      <li>
+        <strong>Company or product lists are incomplete</strong>: Verify that
+        your data table contains all combinations and is properly formatted as
+        an Excel Table
+      </li>
+    </ul>
+    <h2 id="customizing-the-template">Customizing the Template</h2>
+    <ul>
+      <li>Add more columns to your data table for additional properties</li>
+      <li>Create more dependent dropdowns by duplicating the pattern</li>
+      <li>
+        Adjust the conditional formatting to use different colors or add icons
+      </li>
+      <li>Add more helper functions to validate other aspects of data entry</li>
+    </ul>
+    <h2 id="adapting-the-template-for-different-types-of-data">
+      Adapting the Template for Different Types of Data
+    </h2>
+    <p>
+      This template can be easily adapted for various business scenarios. Here
+      are some examples:
+    </p>
+    <h3 id="1-customer-order-system">1. Customer-Order System</h3>
+    <ul>
+      <li>
+        <p><strong>Data Table Structure</strong>:</p>
+        <ul>
+          <li>Column A: Customer Names</li>
+          <li>Column B: Previous Orders</li>
+          <li>Additional columns: Order details, prices, delivery dates</li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>Implementation</strong>:</p>
+        <ul>
+          <li>First dropdown: Customer selection</li>
+          <li>
+            Second dropdown: Only shows that customer&#39;s previous orders
+          </li>
+          <li>
+            Additional benefit: Add a SUMIFS formula to show total spent or
+            order count
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <h3 id="2-location-based-data">2. Location-Based Data</h3>
+    <ul>
+      <li>
+        <p><strong>Data Table Structure</strong>:</p>
+        <ul>
+          <li>Column A: Countries</li>
+          <li>Column B: Cities</li>
+          <li>Additional columns: Population, local time zone, currency</li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>Implementation</strong>:</p>
+        <ul>
+          <li>First dropdown: Country selection</li>
+          <li>Second dropdown: Only cities in that country</li>
+          <li>
+            Enhance with: XLOOKUP to display the country&#39;s currency code
+            automatically
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <h3 id="3-product-categories-and-items">3. Product Categories and Items</h3>
+    <ul>
+      <li>
+        <p><strong>Data Table Structure</strong>:</p>
+        <ul>
+          <li>Column A: Category (Electronics, Clothing, Food)</li>
+          <li>Column B: Products</li>
+          <li>Column C: Prices</li>
+          <li>Column D: Inventory count</li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>Implementation</strong>:</p>
+        <ul>
+          <li>First dropdown: Product category</li>
+          <li>Second dropdown: Products in that category</li>
+          <li>
+            Use helper formulas to display price and check inventory status
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <h3 id="4-project-management">4. Project Management</h3>
+    <ul>
+      <li>
+        <p><strong>Data Table Structure</strong>:</p>
+        <ul>
+          <li>Column A: Project Names</li>
+          <li>Column B: Tasks</li>
+          <li>Column C: Assigned Team Member</li>
+          <li>Column D: Due Date</li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>Implementation</strong>:</p>
+        <ul>
+          <li>First dropdown: Project selection</li>
+          <li>Second dropdown: Only tasks for that project</li>
+          <li>Add conditional formatting based on due dates</li>
+        </ul>
+      </li>
+    </ul>
+    <h3 id="5-multi-level-categorization">5. Multi-Level Categorization</h3>
+    <p>
+      You can extend this concept to three or more levels by adding more FILTER
+      functions:
+    </p>
+    <ul>
+      <li><strong>Example</strong>: Region → Country → City → Postal Code</li>
+      <li>
+        <strong>Implementation</strong>:
+        <pre><code class="lang-cs">=FILTER(myData[Country],myData[Region]=ClientSide!<span class="hljs-symbol">D3</span>,<span class="hljs-string">""</span>)
+=FILTER(myData[City],myData[Country]=ClientSide!<span class="hljs-symbol">D5</span>,<span class="hljs-string">""</span>)
+=FILTER(myData[PostalCode],myData[City]=ClientSide!<span class="hljs-symbol">D7</span>,<span class="hljs-string">""</span>)
+</code></pre>
+      </li>
+    </ul>
+    <h2 id="advanced-variations">Advanced Variations</h2>
+    <h3 id="1-using-light-vba-for-enhanced-functionality">
+      1. Using Light VBA for Enhanced Functionality
+    </h3>
+    <p>
+      While the no-VBA approach works well, adding minimal VBA can greatly
+      improve the user experience:
+    </p>
+    <h4 id="automatic-clearing-of-dependent-fields">
+      Automatic Clearing of Dependent Fields
+    </h4>
+    <pre><code class="lang-vb"><span class="hljs-keyword">Private</span> <span class="hljs-keyword">Sub</span> Worksheet_Change(<span class="hljs-keyword">ByVal</span> Target <span class="hljs-keyword">As</span> Range)
+    <span class="hljs-comment">' Check if the changed cell is the company selection</span>
+    <span class="hljs-keyword">If</span> Target.Address = <span class="hljs-string">"$D$3"</span> <span class="hljs-keyword">Then</span>
+        <span class="hljs-comment">' Clear the product selection</span>
+        Application.EnableEvents = <span class="hljs-literal">False</span>
+        Range(<span class="hljs-string">"D5"</span>).Value = <span class="hljs-string">""</span>
+        Application.EnableEvents = <span class="hljs-literal">True</span>
+    <span class="hljs-keyword">End</span> <span class="hljs-keyword">If</span>
+<span class="hljs-keyword">End</span> <span class="hljs-keyword">Sub</span>
+</code></pre>
+    <p>To implement:</p>
+    <ol>
+      <li>
+        Right-click the ClientSide sheet tab and select &quot;View Code&quot;
+      </li>
+      <li>Copy and paste the above code</li>
+      <li>Save as a macro-enabled workbook (.xlsm)</li>
+    </ol>
+    <h4 id="adding-a-refresh-button">Adding a Refresh Button</h4>
+    <pre><code class="lang-vb"><span class="hljs-keyword">Sub</span> RefreshAllDropdowns()
+    <span class="hljs-comment">' Clear all selection cells</span>
+    Sheets(<span class="hljs-string">"ClientSide"</span>).Range(<span class="hljs-string">"D3,D5"</span>).ClearContents
+
+    <span class="hljs-comment">' Optional: Set focus to first dropdown</span>
+    Sheets(<span class="hljs-string">"ClientSide"</span>).Activate
+    Sheets(<span class="hljs-string">"ClientSide"</span>).Range(<span class="hljs-string">"D3"</span>).<span class="hljs-keyword">Select</span>
+<span class="hljs-keyword">End</span> <span class="hljs-keyword">Sub</span>
+</code></pre>
+    <p>To implement:</p>
+    <ol>
+      <li>Go to Developer tab → Insert → Button (Form Control)</li>
+      <li>Draw button on ClientSide sheet</li>
+      <li>Assign the RefreshAllDropdowns macro</li>
+      <li>Label button &quot;Reset Selections&quot;</li>
+    </ol>
+    <h3 id="2-using-indirect-for-dynamic-named-ranges">
+      2. Using INDIRECT for Dynamic Named Ranges
+    </h3>
+    <p>
+      For situations where creating separate FILTER functions is impractical:
+    </p>
+    <pre><code class="lang-cs">=<span class="hljs-built_in">INDIRECT</span>(<span class="hljs-string">"FilteredProducts_"</span> &amp; <span class="hljs-built_in">SUBSTITUTE</span>(ClientSide!<span class="hljs-symbol">D3</span>,<span class="hljs-string">" "</span>,<span class="hljs-string">"_"</span>))
+</code></pre>
+    <p>This approach requires:</p>
+    <ol>
+      <li>
+        Creating multiple named ranges (e.g., FilteredProducts_Microsoft,
+        FilteredProducts_Sony)
+      </li>
+      <li>Using INDIRECT to dynamically reference the appropriate range</li>
+    </ol>
+    <h3 id="3-data-validation-with-searchable-dropdowns">
+      3. Data Validation with Searchable Dropdowns
+    </h3>
+    <p>
+      For long lists, enhance the user experience with searchable dropdowns:
+    </p>
+    <ol>
+      <li>Create a combo box control (Form Control)</li>
+      <li>Set the Input Range to your filtered data</li>
+      <li>Set the Cell Link to a helper cell</li>
+      <li>Use an INDEX formula to retrieve the selected value</li>
+    </ol>
+    <h3 id="4-multiple-dependencies-with-power-query">
+      4. Multiple Dependencies with Power Query
+    </h3>
+    <p>For complex data relationships:</p>
+    <ol>
+      <li>Use Power Query to manage your data table</li>
+      <li>Create calculated columns for filtering</li>
+      <li>Load the results to your workbook</li>
+      <li>Create dropdowns based on the filtered data</li>
+    </ol>
+    <h3 id="5-adding-detailed-validation-messages">
+      5. Adding Detailed Validation Messages
+    </h3>
+    <p>Enhance error notifications by creating custom error messages:</p>
+    <ol>
+      <li>In the Data Validation dialog, go to the Error Alert tab</li>
+      <li>Select &quot;Stop&quot; as the style</li>
+      <li>Add a title like &quot;Invalid Selection&quot;</li>
+      <li>
+        Add a detailed message: &quot;The selected product does not belong to
+        [Company]. Please select a valid product from the dropdown list.&quot;
+      </li>
+    </ol>
+    <hr />
+    <p>
+      This guide was created as a tutorial for Excel users who need to implement
+      dependent dropdowns. The included template demonstrates all concepts in a
+      working example. <a href="https://github.com/ZZumMallen/ExcelDependentDropdown">Created by Zach</a>
+    </p>
+  </body>
+</html>
