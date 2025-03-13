@@ -12,7 +12,8 @@ This template is perfect for creating order forms, data entry sheets, or any sit
 
 ## Step-by-Step Instructions
 
-:bulb: **Tip:** Using table names and Named Ranges will avoid a lot of issues that can come up when adding, editing, or referencing this data in other places.
+> [!TIP] 
+> Using table names and Named Ranges will avoid a lot of issues that  can come up when adding, editing, or referencing this data in other  places.
 
 ### Step 1: Set Up Your Data Table
 
@@ -68,7 +69,7 @@ This template is perfect for creating order forms, data entry sheets, or any sit
 
 ![Error Handler Named Range](/ErrorHandler.png)
 
->[!Note]
+>[!TIP]
 >The # at the end of BackEnd!$F$1# denotes that the cell contains a dynamic array and will link all of the data instead of only what is in cell F1
 ### Step 4: Set Up the User Interface
 
